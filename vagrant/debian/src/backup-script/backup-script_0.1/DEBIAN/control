@@ -1,0 +1,10 @@
+Package: backup-script
+Architecture: all
+Maintainer: Reggie Ealey
+Depends: debconf (>= 0.5.00), rsync
+Priority: optional
+Version: 0.1
+Description: A simple script to test building a deb package
+ To be or not to be
+ .
+ That's the question!

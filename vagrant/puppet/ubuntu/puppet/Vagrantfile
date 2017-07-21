@@ -1,0 +1,37 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$mypublickey=<<-MPK
+	echo "adding my public key"
+	echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC72MaUYz/7cfQbI0UjfYjCN+uJ5Zv9u7gfnP7U+quai/DjuxAmTh66h3vT2sfuskUQgpITRIueTjVi5O9Kd+UWgjeh2sjxuNuh0mSD4ubxQxX1ijRKekwy/xwLDUgzoqaGOrYmfrf3QATKiqv1OrXhfsSaM0MnV3sCUXp62+1nDziV767AP71xKfB3ADLAgXCyOorXgsgv4AkeJJRhvbuTA+66NYOhYkMF5pJLA4vp8ZzoQVVtiqcexhCTjG2wppAL4x0N+6t7DrPkSwzdSFMs7qSHgdwTIV7KxNdGckGu7U6UoxCaCwWguyKAmd/UCGgmMm1qw83MCXjQ6AJ1aKuT scheekur@scheekur-engit-vm" >> /home/vagrant/.ssh/authorized_keys
+MPK
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "puppetlabs/ubuntu-16.04-64-puppet"
+  config.vm.hostname = "puppet-ubuntu.scheekur.devops"
+  config.vm.network "private_network", ip: "192.168.95.160"
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "puppetMaster_ub16"
+    v.memory = 2048
+    v.cpus = 2
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 10000]
+    v.customize ["modifyvm", :id, "--groups", "/scheekur-puppet-devops"]
+  end
+
+  config.vm.provision :hosts do |provisioner|
+    provisioner.add_host '192.168.100.61', ['node01.localhost.com', 'node01']
+    provisioner.add_host '192.168.100.62', ['node02.localhost.com', 'node02']
+    provisioner.add_host '192.168.100.63', ['node03.localhost.com', 'node03']
+  end
+
+
+#config.vm.provision "shell", inline: $mypublickey
+
+#config.vm.provision "shell",
+  #  inline: "ntpdate  ntp.ubuntu.com"
+
+end

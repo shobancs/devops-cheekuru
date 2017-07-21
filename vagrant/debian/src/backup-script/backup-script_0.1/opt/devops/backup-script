@@ -1,0 +1,4 @@
+# script to test building a deb package
+echo "deb package has been install"
+
+

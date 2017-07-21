@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+    scheekur_debian_repo:
+        build: .
+        image: scheekur/debian-repo
+        container_name: scheekur_debian_repo
+

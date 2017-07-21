@@ -1,0 +1,79 @@
+
+Checkout Cachet source code from github
+git checkout https://github.com/CachetHQ/Cachet.git
+
+Go to cachet folder and run 
+
+composer install --no-dev -o
+
+Create .env file with the following values 
+-------------------------------------------------------
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=http://localhost
+APP_KEY=base64:FTkbbJd7h/oehdSWnlgz3cnbv+tk9hlKzqBdWVwsfqI=
+
+DB_DRIVER=pgsql
+DB_HOST=localhost
+DB_DATABASE=cachet
+DB_USERNAME=cachet
+DB_PASSWORD=cachet
+DB_PORT=5432
+
+CACHE_DRIVER=database
+SESSION_DRIVER=database
+QUEUE_DRIVER=database
+CACHET_EMOJI=false
+
+MAIL_DRIVER=sendmail
+MAIL_HOST=outbound.cisco.com
+MAIL_PORT=25
+MAIL_USERNAME=scheekur
+MAIL_PASSWORD=scheekur
+MAIL_ADDRESS=scheekur@cisco.com
+MAIL_NAME="Demo Status Page"
+MAIL_ENCRYPTION=tls
+
+REDIS_HOST=null
+REDIS_DATABASE=null
+REDIS_PORT=null
+
+GITHUB_TOKEN=null
+
+---------------------------------------------------
+
+Run php artisan key:generate which replace the API key in .env file
+Install ldap libraries and integration
+used https://github.com/Adldap2/Adldap2-Laravel
+sudo apt-get install php7.0-ldap
+Run  php artisan app:install
+update composer file with laravel ldap integration libraries 
+
+         "ext-ldap": "*",
+        "adldap2/adldap2-laravel": "3.0.*"
+
+rm -rf bootstrap/cache/*
+chmod -R 777 bootstrap/
+Run composer update
+
+
+LDAP_ENABLED
+
+
+
+LDAP configuration
+
+My super awesome group search filter
+
+(&(objectClass=user)(memberOf=CN=engci-admins,OU=Standard,OU=Cisco Groups,DC=cisco,DC=com))
+
+
+LDAP usr/pwd
+pdsint/cSc2pds2nt
+
+
+Creating/updating cachet component status/enable/disable
+curl -H "Content-Type: application/json;" -H "X-Cachet-Token:PIyIxWYHc1OlUF0psiEL" --request PUT \
+  --url http://cachet.app/api/v1/components  \
+  --data '{"name":"test","description":"test","status":1}'
+

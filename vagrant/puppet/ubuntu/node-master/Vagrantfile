@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "puppetlabs/ubuntu-16.04-64-puppet"
+  config.vm.hostname = "puppet"
+  config.vm.network "private_network", ip: "192.168.95.60"
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "puppetMaster_ub16"
+    v.memory = 2048
+    v.cpus = 1
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 10000]
+  end
+
+  config.vm.provision :hosts do |provisioner|
+    provisioner.add_host '192.168.100.61', ['node01.localhost.com', 'node01']
+    provisioner.add_host '192.168.100.62', ['node02.localhost.com', 'node02']
+    provisioner.add_host '192.168.100.63', ['node03.localhost.com', 'node03']
+  end
+
+
+  config.vm.provision "shell",
+    inline: "ntpdate  ntp.ubuntu.com"
+
+end

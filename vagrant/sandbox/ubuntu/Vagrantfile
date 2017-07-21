@@ -1,0 +1,64 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+$myprovisions=<<-SHELL
+echo "creating [/opt/devops] directory"
+  if [ ! -d "/opt/devops" ]; then
+	  mkdir -p /opt/devops
+  fi
+  cat /home/ubuntu/devops/id_rsa.pub >>  /home/ubuntu/.ssh/authorized_keys
+  apt-get update
+	apt-get -y install curl  vim tree meld git-core puppet-common  software-properties-common python-software-properties \
+  apt-transport-https \
+  ca-certificates
+  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+  add-apt-repository ppa:webupd8team/java -y
+  apt-get update
+  apt-get install oracle-java8-installer
+  echo "Setting environment variables for Java 8.."
+  apt-get install -y oracle-java8-set-default
+  apt-get update && apt-get -y upgrade
+  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+curl -s "https://get.sdkman.io" | bash
+sdk i gradle
+sdk i springboot
+sdk i groovy
+ curl -fsSL https://apt.dockerproject.org/gpg | sudo apt-key add -
+  add-apt-repository  "deb https://apt.dockerproject.org/repo/  ubuntu-$(lsb_release -cs)  main"
+   apt-get update && apt-get -y install docker-engine yarn
+   groupadd docker
+   gpasswd -a ubuntu docker
+
+    # install nodejs
+    sudo apt-get install python-software-properties
+    curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+    apt-get install -y nodejs
+    npm install npm@latest -g
+  echo "my provisions completed................................................"
+SHELL
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "ubuntu/xenial64"
+
+  config.vm.hostname = "sandbox-ubuntu.scheekur.devops"
+  config.vm.network "private_network", ip: "192.168.95.201"
+
+  config.vm.provider "virtualbox" do |v|
+	v.name = "scheekur_sandbox_ubuntu"
+    v.memory = 4096
+    v.cpus = 1
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 10000]
+	v.customize ["modifyvm", :id, "--groups", "/scheekur-devops"]
+  end
+
+  config.vm.provision :hosts do |provisioner|
+    provisioner.add_host '192.168.95.150', ['puppet.scheekur.devops', 'puppet']
+  end
+
+  config.vm.provision "file", source: "../../../config", destination: "devops"
+  config.vm.provision "shell", inline: $myprovisions
+end

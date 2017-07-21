@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$updateLocale=<<-UPDLOCALE
+ echo "updating locale"
+  echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
+UPDLOCALE
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "centos-7.0-x86_64"
+  config.vm.hostname = "agent-3.scheekur.devops"
+  config.vm.network "private_network", ip: "192.168.95.153"
+  #config.vm.network "forwarded_port", guest: 21, host: 2221
+
+  config.vm.provider "virtualbox" do |v|
+	v.name = "scheekur_puppet_agent_3_centos7"
+    v.memory = 512
+    v.cpus = 1
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 10000]
+	v.customize ["modifyvm", :id, "--groups", "/scheekur-puppet-devops"]
+  end
+
+  config.vm.provision :hosts do |provisioner|
+    provisioner.add_host '192.168.95.180', ['puppet.scheekur.devops', 'puppet']
+  end
+
+  config.vm.provision "file", source: "../../../../config", destination: "devops"
+  config.vm.provision "shell", inline: $updateLocale
+  config.vm.provision "shell", path: "../node-provision.sh"
+
+end

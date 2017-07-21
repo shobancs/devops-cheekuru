@@ -1,0 +1,15 @@
+version: '2'
+services:
+    puppet_alpine_agent:
+        build: .
+        container_name: scheekur_alpine
+        image: scheekur/alpine
+        hostname: alpine
+        domainname: scheekur.devops
+        volumes:
+          - ./code:/opt/devops/code
+
+networks:
+  default:
+    external:
+      name: devops

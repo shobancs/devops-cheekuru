@@ -1,0 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+$myprovisions=<<-SHELL
+echo "creating [/opt/devops] directory"
+  if [ ! -d "/opt/devops" ]; then
+	  mkdir -p /opt/devops
+  fi
+  cat /home/vagrant/devops/id_rsa.pub >>  /home/vagrant/.ssh/authorized_keys
+
+  sudo rsync -avz /home/vagrant/devops/src/backup-script /opt/devops/.
+  apt-get update && apt-get -y install tree vim curl wget && apt-get -y upgrade
+
+  echo "my provisions completed................................................"
+SHELL
+Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+  config.vm.box = "debian/jessie64"
+
+  config.vm.hostname = "sandbox-debian.scheekur.devops"
+  config.vm.network "private_network", ip: "192.168.95.210"
+
+  config.vm.provider "virtualbox" do |v|
+  v.name = "scheekur_sandbox_debian"
+    v.memory = 1024
+    v.cpus = 1
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 10000]
+  v.customize ["modifyvm", :id, "--groups", "/scheekur-devops"]
+  end
+
+  config.vm.provision :hosts do |provisioner|
+    provisioner.add_host '192.168.95.150', ['puppet.scheekur.devops', 'puppet']
+  end
+
+  config.vm.provision "file", source: "../../config", destination: "devops"
+  config.vm.provision "file", source: "src", destination: "devops/."
+  config.vm.provision "shell", inline: $myprovisions
+end

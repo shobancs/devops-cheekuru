@@ -1,0 +1,13 @@
+version: '2'
+services:
+    ubuntu_groovy:
+        build: .
+        container_name: scheekur_ubuntu_groovy
+        image: scheekur/ubuntugroovy
+        hostname: ubuntugroovy
+        domainname: scheekur.devops
+
+networks:
+  default:
+    external:
+      name: devops
