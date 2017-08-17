@@ -21,4 +21,12 @@ echo "updating locale"
 
   cp /home/vagrant/devops/puppet.conf.vagrant  /etc/puppet/puppet.conf
   cat /home/vagrant/devops/id_rsa.pub >>  /home/vagrant/.ssh/authorized_keys
+  yum update -y
+  yum install epel-release -y
+  yum install net-tools -y
+  yum install docker -y
+  yum install nodejs -y
+  yum install python2 -y
+  yum install maven -y
+
   echo "my provisions completed................................................"

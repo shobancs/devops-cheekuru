@@ -1,1 +1,1 @@
-{"virtualbox":{"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/cygwin64/home/scheekur/devops/vagrant/puppet/centos/agent-1","disabled":false,"__vagrantfile":true}}}
+{"virtualbox":{"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/shoban/Training/devops-cheekuru/vagrant/puppet/centos/agent-1","disabled":false,"__vagrantfile":true}}}

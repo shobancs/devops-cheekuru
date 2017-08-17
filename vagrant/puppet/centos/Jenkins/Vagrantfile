@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$updateLocale=<<-UPDLOCALE
+ echo "updating locale"
+  echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
+UPDLOCALE
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "centos-7.2-x86_64"
+  config.vm.hostname = "jenkins.scheekur.devops"
+  config.vm.network "private_network", ip: "192.168.95.170"
+  #config.vm.network "forwarded_port", guest: 21, host: 2221
+
+  config.vm.provider "virtualbox" do |v|
+	v.name = "scheekur_jenkins_centos7"
+    v.memory = 1024
+    v.cpus = 1
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 10000]
+	v.customize ["modifyvm", :id, "--groups", "/scheekur-jenkins-devops"]
+  end
+
+  config.vm.provision :hosts do |provisioner|
+    provisioner.add_host '192.168.95.151', ['agent-1.scheekur.devops', 'agent-1']
+    provisioner.add_host '192.168.95.152', ['agent-2.scheekur.devops', 'agent-2']
+    provisioner.add_host '192.168.95.153', ['agent-3.scheekur.devops', 'agent-3']
+    provisioner.add_host '192.168.95.190', ['checkmk.scheekur.devops', 'checkmk']
+  end
+
+  config.vm.provision "file", source: "../../../../config", destination: "devops"
+  config.vm.provision "shell", inline: $updateLocale
+  config.vm.provision "shell", inline: "/bin/systemctl stop firewalld && /bin/systemctl disable firewalld"
+  config.vm.provision "shell", path: "../master-provision.sh"
+
+end

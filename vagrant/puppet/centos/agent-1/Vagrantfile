@@ -25,6 +25,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :hosts do |provisioner|
     provisioner.add_host '192.168.95.180', ['puppet.scheekur.devops', 'puppet']
+    provisioner.add_host '192.168.95.170', ['puppet.scheekur.devops', 'puppet']
   end
 
   config.vm.provision "file", source: "../../../../config", destination: "devops"
